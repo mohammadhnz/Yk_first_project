@@ -17,7 +17,7 @@ class Advertiser(BaseAdvertising):
 
     @staticmethod
     def help():
-        return "id: each advertiser has their own Id" \
+        return "id: each advertiser has its own Id" \
                "\nname: name of advertiser\nclicks: count of clicks\nviews: count of views"
 
     def describe_me(self):
