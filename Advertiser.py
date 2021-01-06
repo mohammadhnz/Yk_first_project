@@ -24,7 +24,7 @@ class Advertiser(BaseAdvertising):
         return "this class is sth about"
 
     @staticmethod
-    def get_total_clicks():
+    def getTotalClicks():
         clicks = 0
         for advertiser in Advertiser.__allAdvertisers:
             clicks += advertiser.get_clicks()
