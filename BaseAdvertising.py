@@ -20,9 +20,6 @@ class BaseAdvertising(ABC):
     def inc_views(self):
         self._views += 1
 
-    def describe_me(self):
-        return "common parent of ad and advertiser"
-
     @abstractmethod
     def describe_me(self):
         pass

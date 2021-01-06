@@ -21,10 +21,10 @@ class Advertiser(BaseAdvertising):
                "\nname: name of advertiser\nclicks: count of clicks\nviews: count of views"
 
     def describe_me(self):
-        return "this class is sth about"
+        return "this is advertiser class"
 
     @staticmethod
-    def getTotalClicks():
+    def get_total_clicks():
         clicks = 0
         for advertiser in Advertiser.__allAdvertisers:
             clicks += advertiser.get_clicks()

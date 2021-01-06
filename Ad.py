@@ -1,5 +1,4 @@
 from BaseAdvertising import BaseAdvertising as BaseAdvertising
-from Advertiser import Advertiser as Advertiser
 
 
 class Ad(BaseAdvertising):
@@ -50,4 +49,4 @@ class Ad(BaseAdvertising):
         pass
 
     def describe_me(self):
-        return "I'm who will help you to control ad things"
+        return "this is ad class"
