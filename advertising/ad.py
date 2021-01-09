@@ -5,44 +5,49 @@ class Ad(BaseAdvertising):
 
     def __init__(self, id, title, imgUrl, link, advertiser):
         super(Ad, self).__init__(id)
-        self.__title = title
-        self.__imgUrl = imgUrl
-        self.__link = link
-        self.__advertiser = advertiser
+        self._title = title
+        self._imgUrl = imgUrl
+        self._link = link
+        self._advertiser = advertiser
 
-    def get_title(self):
-        return self.__title
+    @property
+    def title(self):
+        return self._title
 
-    def set_title(self, title):
-        self.__title = title
+    @title.setter
+    def title(self, value):
+        self._title = value
 
-    def get_imgUrl(self):
-        return self.__imgUrl
+    @property
+    def imgUrl(self):
+        return self._imgUrl
 
-    def set_imgUrl(self, url):
-        self.__imgUrl = url
+    @imgUrl.setter
+    def imgUrl(self, value):
+        self._imgUrl = value
 
-    def get_link(self):
-        return self.__link
+    @property
+    def link(self):
+        return self._link
 
-    def set_link(self, link):
-        self.__link = link
+    @link.setter
+    def link(self, value):
+        self._link = value
 
-    def set_advertiser(self, advertiser):
-        self.__advertiser = advertiser
+    @property
+    def advertiser(self):
+        return self._advertiser
 
-    def get_clicks(self):
-        return self._clicks
-
-    def get_views(self):
-        return self._views
+    @advertiser.setter
+    def advertiser(self, value):
+        self._advertiser = value
 
     def inc_clicks(self):
-        self.__advertiser.inc_clicks()
+        self._advertiser.inc_clicks()
         self._clicks += 1
 
     def inc_views(self):
-        self.__advertiser.inc_views()
+        self._advertiser.inc_views()
         self._views += 1
 
     def help(self):
