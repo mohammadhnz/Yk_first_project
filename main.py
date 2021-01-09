@@ -1,5 +1,5 @@
-from advertising.Ad import Ad as Ad
-from advertising.Advertiser import Advertiser as Advertiser
+from advertising.ad import Ad as Ad
+from advertising.advertiser import Advertiser as Advertiser
 
 advertiser1 = Advertiser(1, "Ali")
 advertiser2 = Advertiser(2, "Ali1")
