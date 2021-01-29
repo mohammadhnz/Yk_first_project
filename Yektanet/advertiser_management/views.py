@@ -1,11 +1,28 @@
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import render
 
+from .forms import CreateAd
 from .models import Advertiser, Ad
 
 
 def advertiser_management1(request):
     return HttpResponse("Thie is advertiser_management")
+
+
+def create_ad(request):
+    if request.method == 'POST':
+        form = CreateAd(request.POST)
+        if form.is_valid():
+            advertiser_id1 = form.cleaned_data['advertiser_id']
+            image1 = form.cleaned_data['image']
+            title1 = form.cleaned_data['title']
+            link1 = form.cleaned_data['link']
+            Ad.objects.create(title=title1, link=link1, image=image1,
+                                  advertiser_id=advertiser_id1)
+        else:
+            raise Http404("bad")
+    form = CreateAd()
+    return render(request, "advertiser_management/create_ad.html", {'form': form})
 
 
 def show_message(request):
@@ -31,6 +48,6 @@ def show_message(request):
 def inc_views(advertiser):
     list_of_ads = Ad.objects.filter(advertiser_id=advertiser.id)
     for ad in list_of_ads:
-        ad.views  = ad.views + 1
+        ad.views = ad.views + 1
     advertiser.views += len(list_of_ads)
     return list_of_ads
