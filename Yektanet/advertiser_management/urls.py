@@ -5,6 +5,4 @@ app_name = "advertiser_management"
 urlpatterns = [
     path('', views.advertiser_management1, name='advertiser_management'),
     path('message', views.show_message, name='show_message'),
-    path('message', views.show_message, name='show_message'),
-    path('<int:question_id>/results/', views.results, name='results'),
 ]

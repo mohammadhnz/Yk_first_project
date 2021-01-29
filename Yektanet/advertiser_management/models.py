@@ -22,7 +22,7 @@ class Ad(BaseAdvertising):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=20)
     link = models.CharField(max_length=100)
-    imgUrl = models.CharField(max_length=100)
+    image = models.ImageField(upload_to="images",default="")
     advertiser = models.ForeignKey(Advertiser, on_delete=models.CASCADE)
 
     def __str__(self):
