@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, Http404
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import RedirectView
 
@@ -10,12 +10,10 @@ class AdRedirectView(RedirectView):
     pattern_name = 'ad-redirect'
     query_string = False
 
-
     def get_redirect_url(self, *args, **kwargs):
         ad = get_object_or_404(Ad, pk=kwargs['pk'])
         ad.inc_clicks()
         return ad.link
-
 
 
 def advertiser_management1(request):
@@ -24,15 +22,14 @@ def advertiser_management1(request):
 
 def create_ad(request):
     if request.method == 'POST':
-        form = CreateAd(request.POST)
-        advertiser_id1 = form.cleaned_data['advertiser_id']
-        image1 = form.cleaned_data['image']
-        title1 = form.cleaned_data['title']
-        link1 = form.cleaned_data['link']
-        Ad.create(title1, form.link, form.image, Advertiser.get_by_id(form.advertiser_id))
-        print("                      >>>>>>>>>>>>>>>>>:             " + title1)
-        # Ad.objects.create(title=title1, link=link1, image=image1,
-        #                   advertiser_id=advertiser_id1)
+        form = CreateAd(request.POST, request.FILES)
+        if form.is_valid():
+            advertiser_id1 = form.cleaned_data.get('advertiser_id')
+            image1 = form.cleaned_data.get('image')
+            title1 = form.cleaned_data.get('title')
+            link1 = form.cleaned_data.get('link')
+            Ad.create(title1, link1, image1, Advertiser.objects.get(pk=int(advertiser_id1)))
+            return HttpResponseRedirect('ads')
     form = CreateAd()
     return render(request, "advertiser_management/create_ad.html", {'form': form})
 

@@ -52,6 +52,7 @@ class Ad(BaseAdvertising):
     @classmethod
     def create(cls, title, link, image, advertiser):
         ad = cls(title=title, link=link, image=image, advertiser=advertiser)
+        ad.save()
         return ad
 
     @staticmethod
