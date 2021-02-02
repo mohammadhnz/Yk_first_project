@@ -53,6 +53,11 @@ class Ad(models.Model):
     advertiser = models.ForeignKey(Advertiser, on_delete=models.CASCADE)
     approve = models.CharField(max_length=1,choices=APPROVE_CHOICES,default='n')
 
+    @property
+    def views(self):
+        views = len(View.objects.filter(ad_id=self.id))
+        return views
+
 
     def __str__(self):
         return str(self.id)
@@ -66,7 +71,8 @@ class Ad(models.Model):
     @staticmethod
     def inc_all_views(ip):
         for ad in Ad.objects.all():
-            ad.inc_views(ip)
+            if ad.approve == 'a':
+              ad.inc_views(ip)
 
     def inc_views(self, ip):
         view = View.objects.create(ip=ip, ad=self)

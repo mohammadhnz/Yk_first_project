@@ -14,10 +14,11 @@ class AdRedirectView(RedirectView):
     def get_redirect_url(self, *args, **kwargs):
         self.ad = get_object_or_404(Ad, pk=kwargs['pk'])
         return self.ad.link
+
     def get(self, request, *args, **kwargs):
         self.ad = get_object_or_404(Ad, pk=kwargs['pk'])
         self.ad.inc_clicks(get_client_ip(request))
-        return super().get(request,*args,**kwargs)
+        return super().get(request, *args, **kwargs)
 
 
 def advertiser_management1(request):
@@ -52,7 +53,7 @@ def show_ads(request):
     advertisers = []
     Ad.inc_all_views(ip)
     for advertiser in Advertiser.objects.all():
-        list_of_ads = Ad.objects.filter(advertiser_id=advertiser.id)
+        list_of_ads = Ad.objects.filter(advertiser_id=advertiser.id, approve='a')
         advertisers.append(
             advertiser_proxy(advertiser.name, advertiser.id, advertiser.clicks, advertiser.views, list_of_ads))
     context = {
