@@ -1,6 +1,7 @@
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.views.generic.base import RedirectView
+from django.views import View
+from django.views.generic.base import RedirectView, TemplateView
 
 from .forms import CreateAd
 from .models import Advertiser, Ad
@@ -25,9 +26,26 @@ def advertiser_management1(request):
     return HttpResponse("Thie is advertiser_management")
 
 
-def create_ad(request):
-    if request.method == 'POST':
-        form = CreateAd(request.POST, request.FILES)
+class AdvertiserManagement(TemplateView):
+    template_name = "advertiser_management/advertiser_management.html"
+
+    def get_context_data(self, **kwargs):
+        context = {
+            "welcome": "hello this is advertiser management view!!!", }
+        return context
+
+
+class CreateAdView(View):
+    form_class = CreateAd
+    initial = {'key': 'value'}
+    template_name = 'advertiser_management/create_ad.html'
+
+    def get(self, request, *args, **kwargs):
+        form = CreateAd
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
         if form.is_valid():
             advertiser_id1 = form.cleaned_data.get('advertiser_id')
             image1 = form.cleaned_data.get('image')
@@ -35,31 +53,37 @@ def create_ad(request):
             link1 = form.cleaned_data.get('link')
             Ad.create(title1, link1, image1, Advertiser.objects.get(pk=int(advertiser_id1)))
             return HttpResponseRedirect('ads')
-    form = CreateAd()
-    return render(request, "advertiser_management/create_ad.html", {'form': form})
+
+        return render(request, self.template_name, {'form': form})
 
 
-def show_ads(request):
-    ip = get_client_ip(request)
+class ShowAds(TemplateView):
+    template_name = "advertiser_management/ads.html"
 
-    class advertiser_proxy:
-        def __init__(self, name, id, clicks, views, ads):
-            self.name = name
-            self.id = id
-            self.clicks = clicks
-            self.views = views
-            self.ads = ads
+    def get_context_data(self, **kwargs):
+        class advertiser_proxy:
+            def __init__(self, name, id, clicks, views, ads):
+                self.name = name
+                self.id = id
+                self.clicks = clicks
+                self.views = views
+                self.ads = ads
 
-    advertisers = []
-    Ad.inc_all_views(ip)
-    for advertiser in Advertiser.objects.all():
-        list_of_ads = Ad.objects.filter(advertiser_id=advertiser.id, approve='a')
-        advertisers.append(
-            advertiser_proxy(advertiser.name, advertiser.id, advertiser.clicks, advertiser.views, list_of_ads))
-    context = {
-        "advertisers": advertisers,
-    }
-    return render(request, "advertiser_management/ads.html", context)
+        advertisers = []
+        for advertiser in Advertiser.objects.all():
+            list_of_ads = Ad.objects.filter(advertiser_id=advertiser.id, approve='a')
+            advertisers.append(
+                advertiser_proxy(advertiser.name, advertiser.id, advertiser.clicks, advertiser.views, list_of_ads))
+        context = {
+            "advertisers": advertisers,
+        }
+        return context
+
+    def get(self, request, *args, **kwargs):
+        ip = get_client_ip(request)
+        Ad.inc_all_views(ip)
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
 
 
 def get_client_ip(request):
