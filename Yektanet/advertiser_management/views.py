@@ -18,7 +18,7 @@ class AdRedirectView(RedirectView):
 
     def get(self, request, *args, **kwargs):
         self.ad = get_object_or_404(Ad, pk=kwargs['pk'])
-        self.ad.inc_clicks(get_client_ip(request))
+        self.ad.inc_clicks(request.ip)
         return super().get(request, *args, **kwargs)
 
 
@@ -80,8 +80,7 @@ class ShowAds(TemplateView):
         return context
 
     def get(self, request, *args, **kwargs):
-        ip = get_client_ip(request)
-        Ad.inc_all_views(ip)
+        Ad.inc_all_views(request.ip)
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
