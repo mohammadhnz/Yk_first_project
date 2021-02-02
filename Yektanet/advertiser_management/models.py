@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 # Create your models here.
@@ -39,7 +40,7 @@ class Advertiser(BaseAdvertising):
                 return advertiser
 
 
-class Ad(BaseAdvertising):
+class Ad(models.Model):
     id = models.AutoField(primary_key=True)
     title = models.CharField(max_length=20)
     link = models.CharField(max_length=100)
@@ -56,16 +57,29 @@ class Ad(BaseAdvertising):
         return ad
 
     @staticmethod
-    def inc_all_views():
+    def inc_all_views(ip):
         for ad in Ad.objects.all():
-            ad.inc_views()
+            ad.inc_views(ip)
 
-    def inc_views(self):
-        self.views += 1
-        self.save()
+    def inc_views(self, ip):
+        view = View.objects.create(ip=ip, ad=self)
         self.advertiser.inc_views()
+        view.save()
 
-    def inc_clicks(self):
-        self.clicks += 1
-        self.save()
+    def inc_clicks(self, ip):
+        click = Click.objects.create(ip=ip, ad=self)
         self.advertiser.inc_clicks()
+        click.save()
+
+
+class View(models.Model):
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
+    ip = models.TextField(null=False)
+    date = models.DateTimeField(default=timezone.now())
+
+
+class Click(models.Model):
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
+    ip = models.TextField(null=False)
+    date = models.DateTimeField(default=timezone.now())
+

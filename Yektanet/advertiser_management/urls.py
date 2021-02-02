@@ -7,7 +7,7 @@ from .models import Ad
 app_name = "advertiser_management"
 urlpatterns = [
     path('', views.advertiser_management1, name='advertiser_management'),
-    path('ads', views.show_message, name='show_message'),
+    path('ads', views.show_ads, name='show_message'),
     path('create_ad', views.create_ad, name='create_ad'),
     path('<int:pk>/',
          views.AdRedirectView.as_view()

@@ -1,4 +1,4 @@
-from django.http import HttpResponse, HttpResponseRedirect, Http404
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views.generic.base import RedirectView
 
@@ -9,11 +9,15 @@ from .models import Advertiser, Ad
 class AdRedirectView(RedirectView):
     pattern_name = 'ad-redirect'
     query_string = False
+    ad = ""
 
     def get_redirect_url(self, *args, **kwargs):
-        ad = get_object_or_404(Ad, pk=kwargs['pk'])
-        ad.inc_clicks()
-        return ad.link
+        self.ad = get_object_or_404(Ad, pk=kwargs['pk'])
+        return self.ad.link
+    def get(self, request, *args, **kwargs):
+        self.ad = get_object_or_404(Ad, pk=kwargs['pk'])
+        self.ad.inc_clicks(get_client_ip(request))
+        return super().get(request,*args,**kwargs)
 
 
 def advertiser_management1(request):
@@ -34,7 +38,9 @@ def create_ad(request):
     return render(request, "advertiser_management/create_ad.html", {'form': form})
 
 
-def show_message(request):
+def show_ads(request):
+    ip = get_client_ip(request)
+
     class advertiser_proxy:
         def __init__(self, name, id, clicks, views, ads):
             self.name = name
@@ -44,7 +50,7 @@ def show_message(request):
             self.ads = ads
 
     advertisers = []
-    Ad.inc_all_views()
+    Ad.inc_all_views(ip)
     for advertiser in Advertiser.objects.all():
         list_of_ads = Ad.objects.filter(advertiser_id=advertiser.id)
         advertisers.append(
@@ -53,3 +59,12 @@ def show_message(request):
         "advertisers": advertisers,
     }
     return render(request, "advertiser_management/ads.html", context)
+
+
+def get_client_ip(request):
+    ip = request.META.get('HTTP_X_FORWARDED_FOR')
+    if ip:
+        ip = ip.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
