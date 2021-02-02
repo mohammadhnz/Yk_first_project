@@ -51,7 +51,7 @@ class Ad(models.Model):
     link = models.CharField(max_length=100)
     image = models.ImageField(upload_to="images", default="")
     advertiser = models.ForeignKey(Advertiser, on_delete=models.CASCADE)
-    approve = models.CharField(max_length=1,choices=APPROVE_CHOICES,default=APPROVE_CHOICES[2])
+    approve = models.CharField(max_length=1,choices=APPROVE_CHOICES,default='n')
 
 
     def __str__(self):
