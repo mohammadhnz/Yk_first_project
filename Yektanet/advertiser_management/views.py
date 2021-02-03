@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
 from django.views import View
@@ -5,6 +7,8 @@ from django.views.generic.base import RedirectView, TemplateView
 
 from .forms import CreateAd
 from .models import Advertiser, Ad
+from .models import Click
+from .models import View as ViewObject
 
 
 class AdRedirectView(RedirectView):
@@ -55,6 +59,65 @@ class CreateAdView(View):
             return HttpResponseRedirect('ads')
 
         return render(request, self.template_name, {'form': form})
+
+
+class ShowAdDetails(TemplateView):
+    template_name = "advertiser_management/ad_view.html"
+
+    def get_context_data(self, **kwargs):
+        class ad_proxy:
+            def __init__(self, title, id):
+                self.title = title
+                self.id = id
+                datetime.now()
+                self.clicks_per_hour = list(len(Click.objects.filter(ad_id=id,
+                                                                          date__gt=datetime.now().replace(hour=x,
+                                                                                                          minute=0,
+                                                                                                          second=0,
+                                                                                                          microsecond=0)
+                                                                          , date__lt=datetime.now().replace(hour=x + 1,
+                                                                                                            minute=0,
+                                                                                                            second=0,
+                                                                                                            microsecond=0)))
+                                            for x in
+                                            range(23))
+                self.views_per_hour = list(len(ViewObject.objects.filter(ad_id=id,
+                                                                    date__gt=datetime.now().replace(hour=x, minute=0,
+                                                                                                    second=0,
+                                                                                                    microsecond=0)
+                                                                    , date__lt=datetime.now().replace(hour=x + 1,
+                                                                                                      minute=0,
+                                                                                                      second=0,
+                                                                                                      microsecond=0)))
+                                           for x in
+                                           range(23))
+                self.click_rate = list(((self.clicks_per_hour[i] / self.views_per_hour[i]) if self.views_per_hour[
+                                                                                                  i] != 0 else 0) for i in range(23))
+                self.click_rate = list(
+                    str(i) + " - " + str(i + 1) + ": " + str(x) for i, x in enumerate(self.click_rate))
+                self.clicks_per_hour = list(
+                    str(i) + " - " + str(i + 1) + ": " + str(x) for i, x in enumerate(self.clicks_per_hour))
+                self.views_per_hour = list(
+                    str(i) + " - " + str(i + 1) + ": " + str(x) for i, x in enumerate(self.views_per_hour))
+                list_of_ip1 = ViewObject.objects.filter(ad_id=id).values('ip')
+                list_of_ip2 = Click.objects.filter(ad_id=id).values('ip')
+                for ip in list_of_ip1:
+
+
+
+        ads = []
+        for ad in Ad.objects.all():
+            ads.append(
+                ad_proxy(ad.title, ad.id))
+        context = {
+            "ads": ads,
+        }
+        return context
+
+    def get(self, request, *args, **kwargs):
+        Ad.inc_all_views(request.ip)
+        context = self.get_context_data(**kwargs)
+        return self.render_to_response(context)
 
 
 class ShowAds(TemplateView):

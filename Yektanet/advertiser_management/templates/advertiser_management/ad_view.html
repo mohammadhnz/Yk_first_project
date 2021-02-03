@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+          crossorigin="anonymous">
+    <title>Ad View</title>
+</head>
+<body>
+<div class="container" dir="rtl">
+    {% for ad in ads %}
+        <div class="card mt-2 p-2">
+            <h5 class="card-title">{{ advertiser.name }}</h5>
+            <div class="card-body">
+           <p>clicks:</p><br>
+		    {% for click in ad.clicks_per_hour %}
+		            <p>{{click}}</p><br>
+		    {% endfor %}
+                    <p>views:</p><br>
+                    {% for view in ad.views_per_hour %}
+		            <p>{{view}}</p><br>
+		    {% endfor %}
+                <p>click_rate:</p><br>
+                {% for click in ad.click_rate %}
+		            <p>{{click}}</p><br>
+		    {% endfor %}
+
+            </div>
+        </div>
+    {% endfor %}
+</div>
+</body>
+</html>

@@ -88,11 +88,11 @@ class Ad(models.Model):
 class View(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
     ip = models.TextField(null=False)
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
 
 
 class Click(models.Model):
     ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
     ip = models.TextField(null=False)
-    date = models.DateTimeField(default=timezone.now())
+    date = models.DateTimeField(default=timezone.now)
 
