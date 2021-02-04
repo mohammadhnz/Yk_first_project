@@ -71,39 +71,51 @@ class ShowAdDetails(TemplateView):
                 self.id = id
                 datetime.now()
                 self.clicks_per_hour = list(len(Click.objects.filter(ad_id=id,
-                                                                          date__gt=datetime.now().replace(hour=x,
-                                                                                                          minute=0,
-                                                                                                          second=0,
-                                                                                                          microsecond=0)
-                                                                          , date__lt=datetime.now().replace(hour=x + 1,
-                                                                                                            minute=0,
-                                                                                                            second=0,
-                                                                                                            microsecond=0)))
+                                                                     date__gt=datetime.now().replace(hour=x,
+                                                                                                     minute=0,
+                                                                                                     second=0,
+                                                                                                     microsecond=0)
+                                                                     , date__lt=datetime.now().replace(hour=x + 1,
+                                                                                                       minute=0,
+                                                                                                       second=0,
+                                                                                                       microsecond=0)))
                                             for x in
                                             range(23))
                 self.views_per_hour = list(len(ViewObject.objects.filter(ad_id=id,
-                                                                    date__gt=datetime.now().replace(hour=x, minute=0,
-                                                                                                    second=0,
-                                                                                                    microsecond=0)
-                                                                    , date__lt=datetime.now().replace(hour=x + 1,
-                                                                                                      minute=0,
-                                                                                                      second=0,
-                                                                                                      microsecond=0)))
+                                                                         date__gt=datetime.now().replace(hour=x,
+                                                                                                         minute=0,
+                                                                                                         second=0,
+                                                                                                         microsecond=0)
+                                                                         , date__lt=datetime.now().replace(hour=x + 1,
+                                                                                                           minute=0,
+                                                                                                           second=0,
+                                                                                                           microsecond=0)))
                                            for x in
                                            range(23))
                 self.click_rate = list(((self.clicks_per_hour[i] / self.views_per_hour[i]) if self.views_per_hour[
-                                                                                                  i] != 0 else 0) for i in range(23))
+                                                                                                  i] != 0 else 0) for i
+                                       in range(23))
                 self.click_rate = list(
                     str(i) + " - " + str(i + 1) + ": " + str(x) for i, x in enumerate(self.click_rate))
                 self.clicks_per_hour = list(
                     str(i) + " - " + str(i + 1) + ": " + str(x) for i, x in enumerate(self.clicks_per_hour))
                 self.views_per_hour = list(
                     str(i) + " - " + str(i + 1) + ": " + str(x) for i, x in enumerate(self.views_per_hour))
-                list_of_ip1 = ViewObject.objects.filter(ad_id=id).values('ip')
-                list_of_ip2 = Click.objects.filter(ad_id=id).values('ip')
-                for ip in list_of_ip1:
+                ip_dict1 = list(ViewObject.objects.filter(ad_id=id).values('ip'))
+                ip_dict2 = list(Click.objects.filter(ad_id=id).values('ip'))
+                ip_set1, ip_set2 = set(), set()
+                for ip in ip_dict1:
+                    ip_set1.add(ip['ip'])
+                for ip in ip_dict2:
+                    ip_set2.add(ip['ip'])
 
 
+                sum = 0
+                if ip_set2 & ip_set1:
+                    for ip in ip_set1 & ip_set2:
+                        sum += (ViewObject.objects.get(ip=ip,ad_id=id).date - Click.objects.get(ip=ip,ad_id=id).date).total_seconds()
+                    sum /= len(ip_set2 & ip_set1)
+                self.average_click_time = sum
 
         ads = []
         for ad in Ad.objects.all():
