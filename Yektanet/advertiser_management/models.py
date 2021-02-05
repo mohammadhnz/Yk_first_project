@@ -87,12 +87,12 @@ class Ad(models.Model):
 
 
 class View(models.Model):
-    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
-    ip = models.TextField(null=False)
-    date = models.DateTimeField(default=timezone.now)
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE,editable=False)
+    ip = models.TextField(null=False,editable=False)
+    date = models.DateTimeField(default=timezone.now,editable=False)
 
 
 class Click(models.Model):
-    ad = models.ForeignKey(Ad, on_delete=models.CASCADE)
-    ip = models.TextField(null=False)
-    date = models.DateTimeField(default=timezone.now)
+    ad = models.ForeignKey(Ad, on_delete=models.CASCADE, editable=False)
+    ip = models.TextField(null=False, editable=False)
+    date = models.DateTimeField(default=timezone.now, editable=False)

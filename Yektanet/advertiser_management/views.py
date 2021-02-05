@@ -5,6 +5,8 @@ from django.shortcuts import render, get_object_or_404
 from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
 
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 from .forms import CreateAd
 from .models import Advertiser, Ad
 from .models import Click
@@ -109,11 +111,11 @@ class ShowAdDetails(TemplateView):
                 for ip in ip_dict2:
                     ip_set2.add(ip['ip'])
 
-
                 sum = 0
                 if ip_set2 & ip_set1:
                     for ip in ip_set1 & ip_set2:
-                        sum += (ViewObject.objects.get(ip=ip,ad_id=id).date - Click.objects.get(ip=ip,ad_id=id).date).total_seconds()
+                        sum += (ViewObject.objects.get(ip=ip, ad_id=id).date - Click.objects.get(ip=ip,
+                                                                                                 ad_id=id).date).total_seconds()
                     sum /= len(ip_set2 & ip_set1)
                 self.average_click_time = sum
 
