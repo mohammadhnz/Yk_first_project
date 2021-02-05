@@ -2,15 +2,32 @@ from datetime import datetime
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render, get_object_or_404
-from django.views import View
 from django.views.generic.base import RedirectView, TemplateView
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+
+from rest_framework import generics
+
+from rest_framework import viewsets
 from .forms import CreateAd
-from .models import Advertiser, Ad
-from .models import Click
+from .models import Ad, Advertiser, Click
 from .models import View as ViewObject
+from .serializers import *
+from django.views import View
+
+
+class AdvertiserList(generics.ListCreateAPIView):
+    queryset = Advertiser.objects.all()
+    serializer_class = AdvertiserSerializer
+
+
+@api_view(['POST'])
+def adCreate(request):
+    serializer = AdSerializer(data=request.data)
+    if serializer.is_valid():
+        serializer.sava()
+    return Response(serializer.date)
 
 
 class AdRedirectView(RedirectView):
@@ -28,10 +45,6 @@ class AdRedirectView(RedirectView):
         return super().get(request, *args, **kwargs)
 
 
-def advertiser_management1(request):
-    return HttpResponse("Thie is advertiser_management")
-
-
 class AdvertiserManagement(TemplateView):
     template_name = "advertiser_management/advertiser_management.html"
 
@@ -39,28 +52,6 @@ class AdvertiserManagement(TemplateView):
         context = {
             "welcome": "hello this is advertiser management view!!!", }
         return context
-
-
-class CreateAdView(View):
-    form_class = CreateAd
-    initial = {'key': 'value'}
-    template_name = 'advertiser_management/create_ad.html'
-
-    def get(self, request, *args, **kwargs):
-        form = CreateAd
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request, *args, **kwargs):
-        form = self.form_class(request.POST, request.FILES)
-        if form.is_valid():
-            advertiser_id1 = form.cleaned_data.get('advertiser_id')
-            image1 = form.cleaned_data.get('image')
-            title1 = form.cleaned_data.get('title')
-            link1 = form.cleaned_data.get('link')
-            Ad.create(title1, link1, image1, Advertiser.objects.get(pk=int(advertiser_id1)))
-            return HttpResponseRedirect('ads')
-
-        return render(request, self.template_name, {'form': form})
 
 
 class ShowAdDetails(TemplateView):
@@ -161,11 +152,23 @@ class ShowAds(TemplateView):
         context = self.get_context_data(**kwargs)
         return self.render_to_response(context)
 
+class CreateAdView(View):
+    form_class = CreateAd
+    initial = {'key': 'value'}
+    template_name = 'advertiser_management/create_ad.html'
 
-def get_client_ip(request):
-    ip = request.META.get('HTTP_X_FORWARDED_FOR')
-    if ip:
-        ip = ip.split(',')[0]
-    else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+    def get(self, request, *args, **kwargs):
+        form = CreateAd
+        return render(request, self.template_name, {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST, request.FILES)
+        if form.is_valid():
+            advertiser_id1 = form.cleaned_data.get('advertiser_id')
+            image1 = form.cleaned_data.get('image')
+            title1 = form.cleaned_data.get('title')
+            link1 = form.cleaned_data.get('link')
+            Ad.create(title1, link1, image1, Advertiser.objects.get(pk=int(advertiser_id1)))
+            return HttpResponseRedirect('ads')
+
+        return render(request, self.template_name, {'form': form})
